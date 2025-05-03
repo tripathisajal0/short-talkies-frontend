@@ -6,7 +6,7 @@ const WelcomeScreen = () => {
 
   useEffect(() => {
     // Fetch the updated count from backend with cookies
-    fetch("http://localhost:5000/api/visit", {
+    fetch("https://short-talkies-frontend.onrender.com/api/visit", {
       method: "GET",
       credentials: "include", // important for sending cookies
     })

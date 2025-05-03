@@ -1,12 +1,13 @@
-{
+  {
   "name": "visit-counter-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "A backend service to count and store visits using Node.js, Express, and MongoDB.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["visitor", "counter", "express", "mongodb", "backend"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

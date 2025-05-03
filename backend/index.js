@@ -8,11 +8,11 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-// Allow frontend from localhost:3000 and allow credentials
+// Corrected CORS configuration
 app.use(
   cors({
-    origin: "https://short-talkies-frontend-1.onrender.com/",
-    credentials: true,
+    origin: "https://short-talkies-frontend-1.onrender.com", // no trailing slash
+    credentials: true, // allow cookies to be sent
   })
 );
 
@@ -44,6 +44,7 @@ app.get("/api/visit", async (req, res) => {
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         httpOnly: true,
         sameSite: "Lax",
+        secure: true, // secure is needed for cookies over HTTPS
       });
     }
 

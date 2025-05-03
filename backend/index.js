@@ -11,7 +11,7 @@ app.use(express.json());
 // Allow frontend from localhost:3000 and allow credentials
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://short-talkies-frontend-1.onrender.com/",
     credentials: true,
   })
 );

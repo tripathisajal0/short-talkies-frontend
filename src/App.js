@@ -62,8 +62,7 @@ const WelcomeScreen = () => {
           textAlign: "center",
         }}
       >
-        Along with you,{" "}
-        {visitorCount !== null ? visitorCount : "..."} people scanned the QR
+        Thanks for Scanning And Giving Your Vote, This Is Only For Youtube Video And Topic Is " I Became Chief Minister For a Day " Which Is Comming On This Channel - " Short talkies"
       </motion.h2>
 
       <motion.h3

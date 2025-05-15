@@ -11,12 +11,14 @@ const WelcomeScreen = () => {
       credentials: "include", // important for sending cookies
     })
       .then((res) => res.json())
-      .then((data) => setVisitorCount(data.count))
+      .then((data) => {
+        setVisitorCount(data.count);
+        console.log("Visitor Count:", data.count); // log to console only
+      })
       .catch((err) => {
         console.error("Error fetching visit count:", err);
         setVisitorCount("N/A");
       });
-    
   }, []);
 
   return (

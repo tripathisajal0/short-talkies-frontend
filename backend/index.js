@@ -72,7 +72,6 @@
 //   console.log(`Server running on port ${PORT}`);
 // });
 
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -84,6 +83,7 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
+// CORS setup (Make sure your frontend URL is correct)
 app.use(
   cors({
     origin: "https://short-talkies-frontend-1.onrender.com",
@@ -91,74 +91,51 @@ app.use(
   })
 );
 
-// Connect to MongoDB
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
 mongoose.connection.once("open", () => {
-  console.log("Connected to MongoDB");
+  console.log("✅ Connected to MongoDB");
 });
 
-// Visit count schema
+// Schema to store total count
 const visitSchema = new mongoose.Schema({
   count: { type: Number, default: 0 },
 });
 const Visit = mongoose.model("Visit", visitSchema);
 
-// Visitor schema to track IDs
+// Schema to store each unique visitor ID
 const visitorSchema = new mongoose.Schema({
-  uuid: String,
-  ip: String,
+  uuid: { type: String, unique: true },
   createdAt: { type: Date, default: Date.now },
 });
 const Visitor = mongoose.model("Visitor", visitorSchema);
-
-// Get visitor IP utility
-const getClientIp = (req) => {
-  return (
-    req.headers["x-forwarded-for"]?.split(",")[0] ||
-    req.socket?.remoteAddress ||
-    ""
-  );
-};
 
 // Route to track unique visits
 app.get("/api/visit", async (req, res) => {
   try {
     let visitorId = req.cookies.visitor_id;
-    let isUnique = false;
 
     if (!visitorId) {
+      // New visitor: generate ID and set cookie
       visitorId = uuidv4();
       res.cookie("visitor_id", visitorId, {
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
         httpOnly: true,
         sameSite: "Lax",
-        secure: true,
+        secure: true, // Required for HTTPS
       });
-      isUnique = true;
-    } else {
-      const existing = await Visitor.findOne({ uuid: visitorId });
-      if (!existing) {
-        isUnique = true;
-      }
     }
 
-    // Fallback to IP check (if UUID not present)
-    if (!isUnique) {
-      const ip = getClientIp(req);
-      const existingIp = await Visitor.findOne({ ip });
-      if (!existingIp) {
-        isUnique = true;
-        visitorId = null; // fallback mode
-      }
-    }
+    // Check if UUID already exists in DB
+    const existingVisitor = await Visitor.findOne({ uuid: visitorId });
 
-    if (isUnique) {
-      const ip = getClientIp(req);
-      await Visitor.create({ uuid: visitorId, ip });
+    if (!existingVisitor) {
+      // New unique visitor: store UUID and increment count
+      await Visitor.create({ uuid: visitorId });
 
       let visitDoc = await Visit.findOne();
       if (!visitDoc) {
@@ -169,17 +146,17 @@ app.get("/api/visit", async (req, res) => {
       await visitDoc.save();
     }
 
-    const doc = await Visit.findOne();
-    res.json({ count: doc?.count || 0 });
+    // Get current count and return
+    const visitDoc = await Visit.findOne();
+    res.json({ count: visitDoc ? visitDoc.count : 0 });
   } catch (err) {
-    console.error("Error tracking visit:", err);
+    console.error("Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// Server start
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-
